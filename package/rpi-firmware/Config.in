@@ -12,6 +12,26 @@ config BR2_PACKAGE_RPI_FIRMWARE
 if BR2_PACKAGE_RPI_FIRMWARE
 
 choice
+	bool "Boot Files to Install"
+	default BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI
+	help
+		The Raspberry Pi 4 introduced a slightly different
+		naming convention and set of boot files. This option
+		selects which format to install.
+
+config BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI
+	bool "Pi 1/2/3"
+	help
+		The default set of files, for versions pre-4
+
+config BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI4
+	bool "Pi 4"
+	help
+		The Raspberry Pi 4 boot files
+
+endchoice
+
+choice
 	bool "Firmware to boot"
 	default BR2_PACKAGE_RPI_FIRMWARE_DEFAULT
 	help
@@ -45,8 +65,15 @@ endchoice
 config BR2_PACKAGE_RPI_FIRMWARE_BOOT
 	string
 	default ""      if BR2_PACKAGE_RPI_FIRMWARE_DEFAULT
-	default "_x"    if BR2_PACKAGE_RPI_FIRMWARE_X
-	default "_cd"   if BR2_PACKAGE_RPI_FIRMWARE_CD
+	default "_x"    if BR2_PACKAGE_RPI_FIRMWARE_X && BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI
+	default "x"     if BR2_PACKAGE_RPI_FIRMWARE_X && BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI4
+	default "_cd"   if BR2_PACKAGE_RPI_FIRMWARE_CD && BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI
+	default "cd"    if BR2_PACKAGE_RPI_FIRMWARE_CD && BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI4
+
+config BR2_PACKAGE_RPI_FIRMWARE_BOOT_SUFFIX
+	string
+	default ""      if BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI
+	default "4"     if BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI4
 
 config BR2_PACKAGE_RPI_FIRMWARE_INSTALL_DTBS
 	bool "Install Device Tree Blobs (DTBs)"
